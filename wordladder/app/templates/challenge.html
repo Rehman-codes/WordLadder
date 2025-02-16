@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html class="w-full h-full">
+
+<head>
+    <title>Word Ladder - Choose Challenge</title>
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/128/4088/4088542.png" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+    <style>
+        .game-font {
+            font-family: 'Oxanium', cursive;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col justify-center items-center w-full h-full m-0 p-0 bg-white">
+    <!-- Custom Challenge Popup -->
+    <div id="customPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
+        <div class="game-font bg-white p-8 rounded-lg w-[400px]">
+            <h2 class="text-2xl font-bold mb-6">Create Custom Challenge</h2>
+            <!-- Replace the existing form with this updated version -->
+            <form class="space-y-4" onsubmit="return validateAndSubmit(event)">
+                <div>
+                    <label class="block mb-2">Start Word</label>
+                    <input type="text" id="startWord" minlength="3" required pattern="[A-Za-z]+"
+                        class="w-full p-2 border-2 border-black rounded-lg focus:outline-none"
+                        placeholder="Enter at least 3 letter word">
+                </div>
+                <div>
+                    <label class="block mb-2">End Word</label>
+                    <input type="text" id="endWord" minlength="3" required pattern="[A-Za-z]+"
+                        class="w-full p-2 border-2 border-black rounded-lg focus:outline-none"
+                        placeholder="Enter at least 3 letter word">
+                </div>
+                <div class="flex gap-4 mt-6">
+                    <button type="button" onclick="closePopup()" class="flex-1 py-2 rounded-lg border-2 border-black">
+                        Cancel
+                    </button>
+                    <button type="submit" class="flex-1 py-2 rounded-lg bg-black text-white">
+                        Create
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <h1 class="game-font text-6xl font-bold mb-[50px]">Choose Challenge</h1>
+
+    <div class="flex gap-8 mb-8">
+        <!-- Challenge Card 1 -->
+        <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
+            <h2 class="text-2xl font-bold mb-4">Challenge #1</h2>
+            <div class="space-y-2">
+                <p>Base Score: 100</p>
+                <p>Max Moves: 5</p>
+                <p>Start Word: COLD</p>
+                <p>End Word: WARM</p>
+            </div>
+            <button onclick="window.location.href='/play/1'" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
+                Play
+            </button>
+        </div>
+
+        <!-- Challenge Card 2 -->
+        <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
+            <h2 class="text-2xl font-bold mb-4">Challenge #2</h2>
+            <div class="space-y-2">
+                <p>Base Score: 150</p>
+                <p>Max Moves: 4</p>
+                <p>Start Word: HEAD</p>
+                <p>End Word: TAIL</p>
+            </div>
+            <button onclick="window.location.href='/play/2'" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
+                Play
+            </button>
+        </div>
+    </div>
+
+    <a href="#" onclick="openPopup()" class="game-font text-xl underline">custom?</a>
+
+    <script>
+        function openPopup() {
+            document.getElementById('customPopup').classList.remove('hidden');
+        }
+
+        function closePopup() {
+            document.getElementById('customPopup').classList.add('hidden');
+        }
+
+        function validateAndSubmit(event) {
+            event.preventDefault();
+            const startWord = document.getElementById('startWord').value.trim();
+            const endWord = document.getElementById('endWord').value.trim();
+            window.location.href = '/play/3';
+            return false;
+        }
+    </script>
+</body>
+
+</html>

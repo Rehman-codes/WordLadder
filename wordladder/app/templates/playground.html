@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html class="w-full h-full">
+
+<head>
+    <title>Word Ladder - Playground</title>
+    <link rel="shortcut icon" href="https://cdn-icons-png.flaticon.com/128/4088/4088542.png" type="image/x-icon">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Oxanium:wght@200..800&display=swap" rel="stylesheet">
+    <style>
+        .game-font {
+            font-family: 'Oxanium', cursive;
+        }
+    </style>
+</head>
+
+<body class="flex flex-col w-full h-full m-0 p-0 bg-white">
+    <!-- Top Bar -->
+    <div class="game-font w-full h-[60px] bg-black text-white px-8 flex justify-between items-center">
+        <span class="text-xl">Score: 100</span>
+        <span class="text-xl">Moves: 0/5</span>
+    </div>
+
+    <div class="flex flex-1">
+        <!-- Main Ladder Section -->
+        <div class="flex-1 flex justify-center items-center">
+            <div class="flex flex-col gap-4 items-center">
+                <!-- First word box -->
+                <div
+                    class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
+                    COLD
+                </div>
+                <!-- Empty boxes for moves -->
+                <div
+                    class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
+                    ____
+                </div>
+                <div
+                    class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
+                    ____
+                </div>
+                <div
+                    class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
+                    ____
+                </div>
+                <!-- Last word box -->
+                <div
+                    class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
+                    WARM
+                </div>
+            </div>
+        </div>
+
+        <!-- Right Bar (now on the right side) -->
+        <div class="game-font w-[30%] bg-gray-100 h-full flex flex-col p-4">
+            <!-- AI Hint Dropdown -->
+            <div class="mb-8">
+                <label for="ai-hint" class="block text-xl mb-2">AI Hint</label>
+                <!-- Replace the existing select element with this updated version -->
+                <select id="ai-hint" class="w-full p-2 rounded-lg border-2 border-black">
+                    <option value="" disabled selected>Select an option</option>
+                    <option value="astar">A*</option>
+                    <option value="ucs">UCS</option>
+                    <option value="bfs">BFS</option>
+                </select>
+            </div>
+
+            <!-- Challenge Info (in middle) -->
+            <div class="flex-1 flex items-center">
+                <div class="bg-white rounded-lg p-4 shadow-md w-full">
+                    <h2 class="text-2xl font-bold mb-4">Challenge Info</h2>
+                    <div class="space-y-2">
+                        <p>Start Word: COLD</p>
+                        <p>Target Word: WARM</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Add Word Form -->
+            <div class="mb-4">
+                <form class="flex gap-2">
+                    <input type="text" placeholder="add next word"
+                        class="game-font flex-1 p-2 rounded-lg border-2 border-black focus:outline-none">
+                    <button type="submit" class="game-font bg-black text-white px-6 py-2 rounded-lg">
+                        Add
+                    </button>
+                </form>
+            </div>
+
+            <!-- End Game Button -->
+            <button onclick="window.location.href='/'"
+                class="game-font bg-black text-white w-full py-4 rounded-lg mt-auto">
+                End Game !
+            </button>
+        </div>
+    </div>
+</body>
+
+</html>
