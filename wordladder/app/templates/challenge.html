@@ -16,69 +16,88 @@
 </head>
 
 <body class="flex flex-col justify-center items-center w-full h-full m-0 p-0 bg-white">
+    <h1 class="game-font text-6xl font-bold mb-[50px]">Choose Challenge</h1>
+
+    <form method="POST" action="{% url 'challenge' %}">
+        {% csrf_token %}
+        <div class="flex gap-8 mb-8">
+            <!-- Show Challenge Based on Difficulty -->
+            {% if difficulty == 'easy' %}
+            <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
+                <h2 class="text-2xl font-bold mb-4">Baby steps</h2>
+                <div class="space-y-2">
+                    <p>Start Word: CAT</p>
+                    <p>End Word: DOG</p>
+                </div>
+                <!-- Hidden fields to pass values -->
+                <input type="hidden" name="startWord" value="CAT">
+                <input type="hidden" name="endWord" value="DOG">
+                <button type="submit" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
+                    Play
+                </button>
+            </div>
+            {% elif difficulty == 'medium' %}
+            <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
+                <h2 class="text-2xl font-bold mb-4">Steady climb</h2>
+                <div class="space-y-2">
+                    <p>Start Word: HEAD</p>
+                    <p>End Word: TAIL</p>
+                </div>
+                <!-- Hidden fields to pass values -->
+                <input type="hidden" name="startWord" value="HEAD">
+                <input type="hidden" name="endWord" value="TAIL">
+                <button type="submit" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
+                    Play
+                </button>
+            </div>
+            {% elif difficulty == 'hard' %}
+            <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
+                <h2 class="text-2xl font-bold mb-4">Ultimate Ladder</h2>
+                <div class="space-y-2">
+                    <p>Start Word: RUNNER</p>
+                    <p>End Word: KILLED</p>
+                </div>
+                <!-- Hidden fields to pass values -->
+                <input type="hidden" name="startWord" value="RUNNER">
+                <input type="hidden" name="endWord" value="KILLED">
+                <button type="submit" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
+                    Play
+                </button>
+            </div>
+            {% endif %}
+        </div>
+    </form>
+
+    <!-- Link to open the custom popup -->
+    <a href="#" onclick="openPopup()" class="game-font text-xl underline">custom?</a>
+
     <!-- Custom Challenge Popup -->
-    <div id="customPopup" class="hidden fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center">
-        <div class="game-font bg-white p-8 rounded-lg w-[400px]">
-            <h2 class="text-2xl font-bold mb-6">Create Custom Challenge</h2>
-            <!-- Replace the existing form with this updated version -->
-            <form class="space-y-4" onsubmit="return validateAndSubmit(event)">
-                <div>
-                    <label class="block mb-2">Start Word</label>
-                    <input type="text" id="startWord" minlength="3" required pattern="[A-Za-z]+"
-                        class="w-full p-2 border-2 border-black rounded-lg focus:outline-none"
-                        placeholder="Enter at least 3 letter word">
+    <div id="customPopup" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
+        <div class="bg-white p-8 rounded-lg w-[400px]">
+            <h2 class="text-2xl font-bold mb-4">Enter Custom Words</h2>
+            <form method="POST" action="{% url 'challenge' %}">
+                {% csrf_token %}
+                <div class="space-y-4">
+                    <div>
+                        <label for="startWord" class="block text-lg">Start Word:</label>
+                        <input type="text" name="startWord" id="startWord"
+                            class="game-font w-full p-2 border-2 border-black rounded-lg" required minlength="3"
+                            maxlength="6" placeholder="3 to 6 letters">
+                    </div>
+                    <div>
+                        <label for="endWord" class="block text-lg">End Word:</label>
+                        <input type="text" name="endWord" id="endWord"
+                            class="game-font w-full p-2 border-2 border-black rounded-lg" required minlength="3"
+                            maxlength="6" placeholder="3 to 6 letters">
+                    </div>
                 </div>
-                <div>
-                    <label class="block mb-2">End Word</label>
-                    <input type="text" id="endWord" minlength="3" required pattern="[A-Za-z]+"
-                        class="w-full p-2 border-2 border-black rounded-lg focus:outline-none"
-                        placeholder="Enter at least 3 letter word">
-                </div>
-                <div class="flex gap-4 mt-6">
-                    <button type="button" onclick="closePopup()" class="flex-1 py-2 rounded-lg border-2 border-black">
-                        Cancel
-                    </button>
-                    <button type="submit" class="flex-1 py-2 rounded-lg bg-black text-white">
-                        Create
-                    </button>
+                <div class="flex justify-between items-center mt-4">
+                    <button type="button" onclick="closePopup()" class="text-black underline">Cancel</button>
+                    <button type="submit" class="bg-black text-white px-6 py-2 rounded-lg">Play</button>
                 </div>
             </form>
         </div>
     </div>
-
-    <h1 class="game-font text-6xl font-bold mb-[50px]">Choose Challenge</h1>
-
-    <div class="flex gap-8 mb-8">
-        <!-- Challenge Card 1 -->
-        <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
-            <h2 class="text-2xl font-bold mb-4">Challenge #1</h2>
-            <div class="space-y-2">
-                <p>Base Score: 100</p>
-                <p>Max Moves: 5</p>
-                <p>Start Word: COLD</p>
-                <p>End Word: WARM</p>
-            </div>
-            <button onclick="window.location.href='/play/1'" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
-                Play
-            </button>
-        </div>
-
-        <!-- Challenge Card 2 -->
-        <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
-            <h2 class="text-2xl font-bold mb-4">Challenge #2</h2>
-            <div class="space-y-2">
-                <p>Base Score: 150</p>
-                <p>Max Moves: 4</p>
-                <p>Start Word: HEAD</p>
-                <p>End Word: TAIL</p>
-            </div>
-            <button onclick="window.location.href='/play/2'" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
-                Play
-            </button>
-        </div>
-    </div>
-
-    <a href="#" onclick="openPopup()" class="game-font text-xl underline">custom?</a>
 
     <script>
         function openPopup() {
@@ -87,14 +106,6 @@
 
         function closePopup() {
             document.getElementById('customPopup').classList.add('hidden');
-        }
-
-        function validateAndSubmit(event) {
-            event.preventDefault();
-            const startWord = document.getElementById('startWord').value.trim();
-            const endWord = document.getElementById('endWord').value.trim();
-            window.location.href = '/play/3';
-            return false;
         }
     </script>
 </body>

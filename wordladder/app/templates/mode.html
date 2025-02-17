@@ -17,16 +17,17 @@
 
 <body class="flex flex-col justify-center items-center w-full h-full m-0 p-0 bg-white">
     <h1 class="game-font text-6xl font-bold mb-[50px]">Select Mode</h1>
-    <div class="flex gap-8">
+    <form method="POST" class="flex gap-8">
+        {% csrf_token %}
         <div class="flex gap-8">
-            <button onclick="window.location.href='/challenge/'"
+            <button type="submit" name="difficulty" value="easy"
                 class="game-font bg-black w-[200px] h-[100px] rounded-lg text-white">Easy</button>
-            <button onclick="window.location.href='/challenge/'"
+            <button type="submit" name="difficulty" value="medium"
                 class="game-font bg-black w-[200px] h-[100px] rounded-lg text-white">Medium</button>
-            <button onclick="window.location.href='/challenge/'"
+            <button type="submit" name="difficulty" value="hard"
                 class="game-font bg-black w-[200px] h-[100px] rounded-lg text-white">Hard</button>
         </div>
-    </div>
+    </form>
 </body>
 
 </html>

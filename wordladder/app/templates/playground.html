@@ -19,7 +19,7 @@
     <!-- Top Bar -->
     <div class="game-font w-full h-[60px] bg-black text-white px-8 flex justify-between items-center">
         <span class="text-xl">Score: 100</span>
-        <span class="text-xl">Moves: 0/5</span>
+        <span class="text-xl">Moves: 0</span>
     </div>
 
     <div class="flex flex-1">
@@ -29,17 +29,9 @@
                 <!-- First word box -->
                 <div
                     class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
-                    COLD
+                    {{ challenge.end_word }}
                 </div>
                 <!-- Empty boxes for moves -->
-                <div
-                    class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
-                    ____
-                </div>
-                <div
-                    class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
-                    ____
-                </div>
                 <div
                     class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
                     ____
@@ -47,7 +39,7 @@
                 <!-- Last word box -->
                 <div
                     class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
-                    WARM
+                    {{ challenge.start_word }}
                 </div>
             </div>
         </div>
@@ -71,8 +63,8 @@
                 <div class="bg-white rounded-lg p-4 shadow-md w-full">
                     <h2 class="text-2xl font-bold mb-4">Challenge Info</h2>
                     <div class="space-y-2">
-                        <p>Start Word: COLD</p>
-                        <p>Target Word: WARM</p>
+                        <p>Target Word: {{ challenge.end_word }}</p>
+                        <p>Start Word: {{ challenge.start_word }}</p>
                     </div>
                 </div>
             </div>
