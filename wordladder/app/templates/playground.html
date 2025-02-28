@@ -31,11 +31,21 @@
                     class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
                     {{ challenge.end_word }}
                 </div>
+                          <!-- Display the ladder -->
+        {% for word in challenge.ladder reversed %}
+        <div class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
+            {{ word }}
+        </div>
+                {% endfor %}
+
                 <!-- Empty boxes for moves -->
+                {% if challenge.ladder %}
                 <div
                     class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
                     ____
                 </div>
+
+                {% endif %}
                 <!-- Last word box -->
                 <div
                     class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
@@ -68,11 +78,26 @@
                     </div>
                 </div>
             </div>
+<!--- Warnings -->
+            {% if messages %}
+            <div class="game-font fixed top-20 right-4 space-y-2">
+                {% for message in messages %}
+                    <div class="p-4 rounded-lg text-white 
+                                {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %}">
+                        {{ message }}
+                    </div>
+                {% endfor %}
+            </div>
+        {% endif %}
+
+
+
 
             <!-- Add Word Form -->
             <div class="mb-4">
-                <form class="flex gap-2">
-                    <input type="text" placeholder="add next word"
+                <form method="POST" action="{% url 'add_word' challenge.id %}" class="flex gap-2">
+                    {% csrf_token %}
+                    <input type="text" name="new_word" placeholder="add next word"
                         class="game-font flex-1 p-2 rounded-lg border-2 border-black focus:outline-none">
                     <button type="submit" class="game-font bg-black text-white px-6 py-2 rounded-lg">
                         Add
