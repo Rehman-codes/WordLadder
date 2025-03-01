@@ -18,40 +18,50 @@
 <body class="flex flex-col w-full h-full m-0 p-0 bg-white">
     <!-- Top Bar -->
     <div class="game-font w-full h-[60px] bg-black text-white px-8 flex justify-between items-center">
-        <span class="text-xl">Score: 100</span>
-        <span class="text-xl">Moves: 0</span>
+        <span class="text-xl">Current Moves: {{ challenge.current_moves }}</span>
     </div>
 
     <div class="flex flex-1">
         <!-- Main Ladder Section -->
-        <div class="flex-1 flex justify-center items-center">
+        <div class="py-20 flex-1 flex justify-center items-center">
+
             <div class="flex flex-col gap-4 items-center">
                 <!-- First word box -->
                 <div
                     class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
                     {{ challenge.end_word }}
                 </div>
-                          <!-- Display the ladder -->
-        {% for word in challenge.ladder reversed %}
-        <div class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
-            {{ word }}
-        </div>
-                {% endfor %}
 
-                <!-- Empty boxes for moves -->
-                {% if challenge.ladder %}
+                {% for word in words_reversed %}
+                <!-- Empty box should appear between the last word and the newly added word -->
+                {% if forloop.first %}
                 <div
                     class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
                     ____
                 </div>
-
                 {% endif %}
+
+                <div
+                    class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
+                    {{ word }}
+                </div>
+                {% endfor %}
+
+                <!-- Empty box when no words have been added -->
+                {% if not words_reversed %}
+                <div
+                    class="game-font w-[200px] h-[60px] border-2 border-dashed border-gray-300 rounded-lg flex items-center justify-center text-xl">
+                    ____
+                </div>
+                {% endif %}
+
                 <!-- Last word box -->
                 <div
                     class="game-font w-[200px] h-[60px] border-2 border-black rounded-lg flex items-center justify-center text-xl">
                     {{ challenge.start_word }}
                 </div>
             </div>
+
         </div>
 
         <!-- Right Bar (now on the right side) -->
@@ -59,7 +69,6 @@
             <!-- AI Hint Dropdown -->
             <div class="mb-8">
                 <label for="ai-hint" class="block text-xl mb-2">AI Hint</label>
-                <!-- Replace the existing select element with this updated version -->
                 <select id="ai-hint" class="w-full p-2 rounded-lg border-2 border-black">
                     <option value="" disabled selected>Select an option</option>
                     <option value="astar">A*</option>
@@ -73,31 +82,59 @@
                 <div class="bg-white rounded-lg p-4 shadow-md w-full">
                     <h2 class="text-2xl font-bold mb-4">Challenge Info</h2>
                     <div class="space-y-2">
+                        <p><strong>Mode:</strong> {{ challenge.get_game_mode_display }}</p>
                         <p>Target Word: {{ challenge.end_word }}</p>
                         <p>Start Word: {{ challenge.start_word }}</p>
+                        <p>Total Moves:
+                            {% if challenge.game_mode == 'easy' %}
+                            {{ challenge.easy_moves }}
+                            {% elif challenge.game_mode == 'medium' %}
+                            {{ challenge.medium_moves }}
+                            {% elif challenge.game_mode == 'hard' %}
+                            {{ challenge.hard_moves }}
+                            {% else %}
+                            -
+                            {% endif %}
+                        </p>
                     </div>
                 </div>
             </div>
-<!--- Warnings -->
+
+
+            <!-- Success & Error Messages -->
             {% if messages %}
-            <div class="game-font fixed top-20 right-4 space-y-2">
+            <div class="mt-10 game-font fixed top-30 space-y-2" id="message-container">
                 {% for message in messages %}
-                    <div class="p-4 rounded-lg text-white 
-                                {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %}">
-                        {{ message }}
-                    </div>
+                <div class="p-4 mt-20 rounded-lg text-white 
+                            {% if message.tags == 'error' %}bg-red-500{% else %}bg-green-500{% endif %} message-box">
+                    {{ message }}
+                </div>
                 {% endfor %}
             </div>
-        {% endif %}
 
+            <script>
+                // Wait for the page to load
+                document.addEventListener("DOMContentLoaded", function () {
+                    // Select all message boxes
+                    const messageBoxes = document.querySelectorAll(".message-box");
 
-
+                    // Set timeout to hide messages after 4 seconds
+                    setTimeout(() => {
+                        messageBoxes.forEach(msg => {
+                            msg.style.transition = "opacity 0.5s ease";  // Smooth fade out
+                            msg.style.opacity = "0";
+                            setTimeout(() => msg.remove(), 500);  // Remove element from DOM after fade-out
+                        });
+                    }, 4000);
+                });
+            </script>
+            {% endif %}
 
             <!-- Add Word Form -->
             <div class="mb-4">
                 <form method="POST" action="{% url 'add_word' challenge.id %}" class="flex gap-2">
                     {% csrf_token %}
-                    <input type="text" name="new_word" placeholder="add next word"
+                    <input type="text" name="new_word" placeholder="add next word" required
                         class="game-font flex-1 p-2 rounded-lg border-2 border-black focus:outline-none">
                     <button type="submit" class="game-font bg-black text-white px-6 py-2 rounded-lg">
                         Add
@@ -107,7 +144,7 @@
 
             <!-- End Game Button -->
             <button onclick="window.location.href='/'"
-                class="game-font bg-black text-white w-full py-4 rounded-lg mt-auto">
+                class="game-font bg-red-600 text-white w-full py-4 rounded-lg mt-auto">
                 End Game !
             </button>
         </div>

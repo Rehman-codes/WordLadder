@@ -53,8 +53,15 @@ def challenge(request):
 #====================================
 def playground(request, challenge_id):
     # Fetch the challenge details from the database
-    challenge = GameSettings.objects.get(id=challenge_id)
-    return render(request, "playground.html", {'challenge': challenge})
+    challenge = get_object_or_404(GameSettings, id=challenge_id)
+
+    # Ensure ladder is a list (in case it's None or uninitialized)
+    ladder = challenge.ladder if hasattr(challenge, 'ladder') else []
+
+    # Reverse the ladder so new words appear below the empty box
+    words_reversed = list(reversed(ladder))
+
+    return render(request, "playground.html", {'challenge': challenge, 'words_reversed': words_reversed})
 
 
 #====================================
@@ -62,7 +69,7 @@ def playground(request, challenge_id):
 #====================================
 def is_valid_word(word):
     # Merriam-Webster API endpoint
-    api_key = "YOUR_MERRIAM_WEBSTER_API_KEY"
+    # api_key = "YOUR_MERRIAM_WEBSTER_API_KEY"
     url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
     
     try:
@@ -113,7 +120,7 @@ def add_word(request, challenge_id):
         if not is_valid_word(new_word):
             messages.error(request, "The word is not a valid English word.")
         elif not is_word_length_valid(new_word, challenge.start_word, challenge.end_word):
-            messages.error(request, "The word length does not match the start and end words.")
+            messages.error(request, "Unmatched word length.")
         else:
             # Get the previous word in the ladder
             previous_word = challenge.ladder[-1] if challenge.ladder else challenge.start_word
@@ -123,9 +130,14 @@ def add_word(request, challenge_id):
                 # Add the word to the ladder
                 if not hasattr(challenge, 'ladder'):
                     challenge.ladder = []
+                
                 challenge.ladder.append(new_word)
+                
+                # Increment current_moves
+                challenge.current_moves += 1  
+                
                 challenge.save()
-                messages.success(request, f"Word '{new_word}' added to the ladder.")
+                messages.success(request, f"Word '{new_word}' added to the ladder. Moves: {challenge.current_moves}")
         
         # Redirect back to the playground
         return redirect('playground', challenge_id=challenge.id)

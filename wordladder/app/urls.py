@@ -6,5 +6,5 @@ urlpatterns = [
     path('mode/', views.mode, name='mode'),
     path('challenge/', views.challenge, name='challenge'),
     path('play/<int:challenge_id>/', views.playground, name='playground'),
- path('add_word/<int:challenge_id>/', views.add_word, name='add_word'),
+    path('add_word/<int:challenge_id>/', views.add_word, name='add_word'),
 ]

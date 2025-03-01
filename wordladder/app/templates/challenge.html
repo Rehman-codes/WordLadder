@@ -24,12 +24,11 @@
             <!-- Show Challenge Based on Difficulty -->
             {% if difficulty == 'easy' %}
             <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
-                <h2 class="text-2xl font-bold mb-4">Baby steps</h2>
+                <h2 class="text-2xl font-bold mb-4">Baby Steps</h2>
                 <div class="space-y-2">
                     <p>Start Word: CAT</p>
                     <p>End Word: DOG</p>
                 </div>
-                <!-- Hidden fields to pass values -->
                 <input type="hidden" name="startWord" value="CAT">
                 <input type="hidden" name="endWord" value="DOG">
                 <button type="submit" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
@@ -38,12 +37,11 @@
             </div>
             {% elif difficulty == 'medium' %}
             <div class="game-font bg-white border-2 border-black p-6 rounded-lg w-[300px]">
-                <h2 class="text-2xl font-bold mb-4">Steady climb</h2>
+                <h2 class="text-2xl font-bold mb-4">Steady Climb</h2>
                 <div class="space-y-2">
                     <p>Start Word: HEAD</p>
                     <p>End Word: TAIL</p>
                 </div>
-                <!-- Hidden fields to pass values -->
                 <input type="hidden" name="startWord" value="HEAD">
                 <input type="hidden" name="endWord" value="TAIL">
                 <button type="submit" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
@@ -57,7 +55,6 @@
                     <p>Start Word: RUNNER</p>
                     <p>End Word: KILLED</p>
                 </div>
-                <!-- Hidden fields to pass values -->
                 <input type="hidden" name="startWord" value="RUNNER">
                 <input type="hidden" name="endWord" value="KILLED">
                 <button type="submit" class="mt-4 bg-black text-white w-full py-2 rounded-lg">
@@ -69,13 +66,13 @@
     </form>
 
     <!-- Link to open the custom popup -->
-    <a href="#" onclick="openPopup()" class="game-font text-xl underline">custom?</a>
+    <a href="#" onclick="openPopup()" class="game-font text-xl underline">Custom?</a>
 
     <!-- Custom Challenge Popup -->
     <div id="customPopup" class="hidden fixed inset-0 bg-gray-600 bg-opacity-50 flex justify-center items-center z-50">
         <div class="bg-white p-8 rounded-lg w-[400px]">
             <h2 class="text-2xl font-bold mb-4">Enter Custom Words</h2>
-            <form method="POST" action="{% url 'challenge' %}">
+            <form method="POST" action="{% url 'challenge' %}" onsubmit="return validateWords()">
                 {% csrf_token %}
                 <div class="space-y-4">
                     <div>
@@ -99,6 +96,7 @@
         </div>
     </div>
 
+    <!-- JavaScript for Popup and Form Validation -->
     <script>
         function openPopup() {
             document.getElementById('customPopup').classList.remove('hidden');
@@ -106,6 +104,25 @@
 
         function closePopup() {
             document.getElementById('customPopup').classList.add('hidden');
+        }
+
+        function validateWords() {
+            let startWord = document.getElementById("startWord").value.trim();
+            let endWord = document.getElementById("endWord").value.trim();
+
+            // Check length constraints (3-6 characters)
+            if (startWord.length < 3 || startWord.length > 6 || endWord.length < 3 || endWord.length > 6) {
+                alert("Words must be between 3 to 6 letters.");
+                return false;
+            }
+
+            // Check if start and end words have the same length
+            if (startWord.length !== endWord.length) {
+                alert("Start and End words must have the same length.");
+                return false;
+            }
+
+            return true;
         }
     </script>
 </body>
