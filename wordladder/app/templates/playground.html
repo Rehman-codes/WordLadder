@@ -66,16 +66,28 @@
 
         <!-- Right Bar (now on the right side) -->
         <div class="game-font w-[30%] bg-gray-100 h-full flex flex-col p-4">
-            <!-- AI Hint Dropdown -->
+            <!-- AI Hint Selection Form -->
             <div class="mb-8">
                 <label for="ai-hint" class="block text-xl mb-2">AI Hint</label>
-                <select id="ai-hint" class="w-full p-2 rounded-lg border-2 border-black">
-                    <option value="" disabled selected>Select an option</option>
-                    <option value="astar">A*</option>
-                    <option value="ucs">UCS</option>
-                    <option value="bfs">BFS</option>
-                </select>
+                <form method="POST" action="{% url 'set_ai_hint' challenge.id %}" class="flex gap-2">
+                    {% csrf_token %}
+                    <select name="ai_hint" class="w-full p-2 rounded-lg border-2 border-black">
+                        <option value="A*" {% if challenge.ai_hint == "A*" %}selected{% endif %}>A*</option>
+                        <option value="UCS" {% if challenge.ai_hint == "UCS" %}selected{% endif %}>UCS</option>
+                        <option value="BFS" {% if challenge.ai_hint == "BFS" %}selected{% endif %}>BFS</option>
+                    </select>
+                    <button type="submit" class="game-font bg-black text-white px-6 py-2 rounded-lg">
+                        Select Algorithm
+                    </button>
+                </form>
             </div>
+
+            <!-- Get AI Hint Button -->
+            <form method="GET" action="{% url 'get_ai_hint' challenge.id %}">
+                <button type="submit" class="game-font bg-blue-500 text-white px-6 py-2 rounded-lg">
+                    Get AI Hint
+                </button>
+            </form>
 
             <!-- Challenge Info (in middle) -->
             <div class="flex-1 flex items-center">
@@ -99,7 +111,6 @@
                     </div>
                 </div>
             </div>
-
 
             <!-- Success & Error Messages -->
             {% if messages %}
@@ -134,7 +145,8 @@
             <div class="mb-4">
                 <form method="POST" action="{% url 'add_word' challenge.id %}" class="flex gap-2">
                     {% csrf_token %}
-                    <input type="text" name="new_word" placeholder="add next word" required
+                    <input type="text" name="new_word" placeholder="add next word"
+                        value="{% if next_word %}{{ next_word }}{% endif %}" required
                         class="game-font flex-1 p-2 rounded-lg border-2 border-black focus:outline-none">
                     <button type="submit" class="game-font bg-black text-white px-6 py-2 rounded-lg">
                         Add

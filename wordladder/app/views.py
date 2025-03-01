@@ -1,7 +1,9 @@
-from django.shortcuts import render, HttpResponse, redirect,get_object_or_404
+from django.shortcuts import render, HttpResponse, redirect, get_object_or_404
 from .models import GameSettings
 from django.contrib import messages
 import requests
+from .utilities.pathfinding import find_next_word
+
 #====================================
 # Home View
 #====================================
@@ -13,38 +15,31 @@ def home(request):
 #====================================
 def mode(request):
     if request.method == "POST":
-        # Capture the selected difficulty level
         difficulty = request.POST.get("difficulty")
-        
-        # Save the data to the database
         game_setting = GameSettings.objects.create(game_mode=difficulty)
-        
-        # Redirect to the challenge page
         return redirect('challenge') 
-    
     return render(request, "mode.html")
 
 #====================================
 # Challenge View
 #====================================
 def challenge(request):
-    # Fetch the last GameSettings object
     game_setting = GameSettings.objects.last()
     difficulty = game_setting.game_mode if game_setting else "easy"
 
     if request.method == "POST":
-        # Capture the start_word and end_word from the form submission
         start_word = request.POST.get("startWord")
         end_word = request.POST.get("endWord")
 
-        # Save the challenge details in the database
         game_setting.start_word = start_word
         game_setting.end_word = end_word
-        game_setting.challenge_type = "predefined"  # as it's selected from predefined challenges
+        game_setting.challenge_type = "predefined"
+        game_setting.ladder = [start_word]  # ✅ Initialize ladder with start word
+        game_setting.current_word = start_word  # ✅ Set current_word at start
+        game_setting.current_moves = 0  # ✅ Reset move count
         game_setting.save()
 
-        # Redirect to the playground page
-        return redirect(f'/play/{game_setting.id}')
+        return redirect('playground', challenge_id=game_setting.id)
 
     return render(request, "challenge.html", {'difficulty': difficulty})
 
@@ -52,94 +47,83 @@ def challenge(request):
 # Playground View
 #====================================
 def playground(request, challenge_id):
-    # Fetch the challenge details from the database
     challenge = get_object_or_404(GameSettings, id=challenge_id)
-
-    # Ensure ladder is a list (in case it's None or uninitialized)
-    ladder = challenge.ladder if hasattr(challenge, 'ladder') else []
-
-    # Reverse the ladder so new words appear below the empty box
+    ladder = challenge.ladder if challenge.ladder else []
     words_reversed = list(reversed(ladder))
-
     return render(request, "playground.html", {'challenge': challenge, 'words_reversed': words_reversed})
 
-
 #====================================
-# validation  functions
+# Validation Functions
 #====================================
 def is_valid_word(word):
-    # Merriam-Webster API endpoint
-    # api_key = "YOUR_MERRIAM_WEBSTER_API_KEY"
     url = f"https://api.dictionaryapi.dev/api/v2/entries/en/{word}"
-    
     try:
         response = requests.get(url)
         data = response.json()
-        
-        # If the word is valid, the API returns a list of definitions
-        if isinstance(data, list) and data:
-            return True
-        else:
-            return False
+        return isinstance(data, list) and bool(data)
     except Exception as e:
         print(f"Error validating word: {e}")
         return False
-    
 
 def is_word_length_valid(new_word, start_word, end_word):
     return len(new_word) == len(start_word) == len(end_word)
 
 def is_one_letter_changed(new_word, previous_word):
     if not previous_word:
-        return True  # No previous word (first word in the ladder)
-    
-    # Normalize the words
-    new_word = new_word.strip().lower()
-    previous_word = previous_word.strip().lower()
-    
-    print(f"Comparing '{new_word}' with '{previous_word}'")  # Debugging
-    
-    if len(new_word) != len(previous_word):
-        return False  # Words must be of the same length
-    
-    differences = sum(1 for a, b in zip(new_word, previous_word) if a != b)
-    return differences == 1  
+        return True  
+    new_word, previous_word = new_word.strip().lower(), previous_word.strip().lower()
+    return sum(1 for a, b in zip(new_word, previous_word) if a != b) == 1  
 
 #====================================
-# Add word functions
+# Add Word Function
 #====================================
 def add_word(request, challenge_id):
     if request.method == "POST":
-        # Fetch the challenge
         challenge = get_object_or_404(GameSettings, id=challenge_id)
-        
-        # Get the new word from the form
         new_word = request.POST.get("new_word").strip().lower()
-        
-        # Perform validation checks
+
         if not is_valid_word(new_word):
             messages.error(request, "The word is not a valid English word.")
         elif not is_word_length_valid(new_word, challenge.start_word, challenge.end_word):
             messages.error(request, "Unmatched word length.")
         else:
-            # Get the previous word in the ladder
             previous_word = challenge.ladder[-1] if challenge.ladder else challenge.start_word
             if not is_one_letter_changed(new_word, previous_word):
                 messages.error(request, "You can only change one letter at a time.")
             else:
-                # Add the word to the ladder
-                if not hasattr(challenge, 'ladder'):
+                if not challenge.ladder:
                     challenge.ladder = []
-                
                 challenge.ladder.append(new_word)
+                challenge.current_word = new_word  # ✅ Update current word
+                challenge.current_moves += 1  # ✅ Increase move count
                 
-                # Increment current_moves
-                challenge.current_moves += 1  
-                
+                # ✅ Check for victory
+                if new_word == challenge.end_word:
+                    challenge.victory = True
+                    messages.success(request, "🎉 Congratulations! You've completed the challenge!")
+
                 challenge.save()
-                messages.success(request, f"Word '{new_word}' added to the ladder. Moves: {challenge.current_moves}")
-        
-        # Redirect back to the playground
+
         return redirect('playground', challenge_id=challenge.id)
-    
     return redirect('home')
+
+#====================================
+# AI Hint Functions
+#====================================
+def set_ai_hint(request, challenge_id):
+    challenge = get_object_or_404(GameSettings, id=challenge_id)
+    if request.method == "POST":
+        selected_hint = request.POST.get("ai_hint")
+        if selected_hint in dict(GameSettings.AI_HINTS):
+            challenge.ai_hint = selected_hint
+            challenge.save()
+    return redirect("playground", challenge_id=challenge.id)
+
+def get_ai_hint(request, challenge_id):
+    challenge = get_object_or_404(GameSettings, id=challenge_id)
+    next_word = None
+    if challenge.ai_hint:
+        next_word = find_next_word(challenge.game_mode, challenge.current_word, challenge.end_word, challenge.ai_hint)
+
+    words_reversed = list(reversed(challenge.ladder))  # ✅ Preserve ladder state
+    return render(request, "playground.html", {"challenge": challenge, "next_word": next_word, "words_reversed": words_reversed})
